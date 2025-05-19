@@ -10,11 +10,6 @@ interface Song {
     url: string;
 }
 
-function decodeHTMLEntities(text: string): string {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = text;
-    return txt.value;
-}
 
 function ArtistProfile() {
     const { setCurrentSong } = useSong();
@@ -30,24 +25,18 @@ function ArtistProfile() {
         if (!artistName) return;
         setLoading(true);
 
-        fetch(`https://saavn.dev/api/search/songs?query=${encodeURIComponent(artistName)}`)
+        const fullArtistName = artistName.trim();
+
+        fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(fullArtistName)}&entity=song&limit=25`)
         .then(res => res.json())
         .then(data => {
-            console.log("JioDaavn Api Data:", data);
-            
-            const songList = data?.data?.results || [];
-            const songData = songList.filter((song: any) => {
-                const allArtists = [...(song.artists?.primary || []), ...(song.artists?.all || [])];
-                return allArtists.some(
-                    (a: any) => 
-                        a.name.toLowerCase().includes(artistName.toLowerCase())
-                )
-            })
+            const songData = (data.results || []).filter((song: any) => song.artistName.toLowerCase().includes(artistName.toLowerCase())
+        )
             .map((song: any) => ({
-                title: decodeHTMLEntities(song.name || song.title || "Unknown title"),
-                image: song.image?.[2]?.url || "",
-                artist: song.artists?.primary?.map((a: any) => a.name).join(",") || "Unknown Artist",
-                url: song.downloadUrl?.find((d: any) => d.quality === "320kbps")?.url || "",
+                title: song.trackName,
+                image: song.artworkUrl100,
+                artist: song.artistName,
+                url: song.previewUrl,
             }))    
                 setSongs(songData);
             })

@@ -76,9 +76,9 @@ return(
         </div>
 
             {/* {Desktop: Static Text} */}
-        <div className="hidden md:block">
-            <p className="marquee font-montserrat-medium text-sm">{currentSong.title}</p>
-            <p className="marquee text-xs font-montserrat-medium text-gray-500">{currentSong.artist}</p>
+        <div className="hidden md:block max-w-[400px] overflow-hidden">
+            <div className="marquee font-montserrat-medium text-sm"><span>{currentSong.title}</span></div>
+            <div className="marquee text-xs font-montserrat-medium text-gray-500"><span>{currentSong.artist}</span></div>
         </div>
 
     </div>
@@ -97,16 +97,16 @@ return(
     </div>
 
     <div className="flex items-center justify-between mt-2">
-    <p className="text-sm font-montserrat-medium pr-3 text-gray-600">{formatTime(currentTime)}</p>
+    <p className="text-sm font-montserrat-medium mr-3 text-gray-600">{formatTime(currentTime)}</p>
     <input 
     type="range" 
     min="0"
     max={duration}
     value={currentTime}
     onChange={handleSeek}
-    className="w-full appearance-none rounded-full h-0.5 mt-1  bg-black accent-black cursor-pointer"
+    className="w-[210px] md:w-[700px] appearance-none rounded-full h-0.5 mt-1  bg-black accent-black cursor-pointer"
     />
-    <p className="text-sm font-montserrat-medium pl-3 text-gray-600">{formatTime(duration)}</p>
+    <p className="text-sm font-montserrat-medium ml-3 text-gray-600">{formatTime(duration)}</p>
     </div>
     </div>
 

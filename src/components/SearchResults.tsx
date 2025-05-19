@@ -10,12 +10,6 @@ interface Song {
     url: string;
 }
 
-function decodeHTMLEntities(text: string): string {
-    const txt = document.createElement("textarea")
-    txt.innerHTML = text;
-    return txt.value;
-}
-
 const SearchResults = () => {
     const { setCurrentSong } = useSong();
     const location = useLocation();
@@ -28,15 +22,15 @@ const SearchResults = () => {
         if(!query) return;
 
         setLoading(true);
-        fetch(`https://saavn.dev/api/search/songs?query=${encodeURIComponent(query)}`)
+        fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=25`)
         .then((res) => res.json())
         .then((data) => {
-            const results = data?.data?.results || [];
+            const results = data?.results || [];
             const formatted = results.map((song: any) => ({
-                title: decodeHTMLEntities(song.name || song.title),
-                artist: song.artists?.primary?.map((a: any) => a.name).join(", ") || "Unknown",
-                image: song.image?.[2].url || "",
-                url: song.downloadUrl?.find((d: any) => d.quality === "320kbps")?.url || "",
+                title: song.trackName || "Unknown Title",
+                artist: song.artistName || "Unknown Artist",
+                image: song.artworkUrl100.replace("100x100", "200x200") || "",
+                url: song.previewUrl || "",
             }));
             setSongs(formatted)
         })

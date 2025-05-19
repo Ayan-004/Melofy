@@ -76,7 +76,7 @@ return(
         </div>
 
             {/* {Desktop: Static Text} */}
-        <div className="hidden md:block max-w-[400px] overflow-hidden">
+        <div className="hidden md:block w-[400px] overflow-hidden">
             <div className="marquee font-montserrat-medium text-sm"><span>{currentSong.title}</span></div>
             <div className="marquee text-xs font-montserrat-medium text-gray-500"><span>{currentSong.artist}</span></div>
         </div>

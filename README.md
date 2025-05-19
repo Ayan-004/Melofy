@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+# Melofy
+=======
+>>>>>>> 9fc6fdb (first commint)
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -52,3 +58,7 @@ export default tseslint.config({
   },
 })
 ```
+<<<<<<< HEAD
+=======
+>>>>>>> bd2910e (first commint)
+>>>>>>> 9fc6fdb (first commint)

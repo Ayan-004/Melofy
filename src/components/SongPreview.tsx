@@ -25,7 +25,9 @@ function SongPreview() {
             const parsedSongs = entries.map((entry: any) => ({
                 trackName: entry["im:name"]?.label || "Unknown Title",
                 artistName: entry["im:artist"]?.label || "Unknown artist",
-                artworkUrl100: entry["im:image"]?.[2]?.label || entry ["im:image"]?.[0]?.label || "",
+                artworkUrl100: (
+                    entry["im:image"]?.[2]?.label || entry["im:image"]?.[0]?.label || ""
+                ).replace(/\/\d+x\d+bb/, "/500x500bb"),
                 previewUrl: entry.link?.find((link: any) => link?.attributes?.type === "audio/x-m4a")?.attributes?.href || "",
             }));
             setTrack(parsedSongs)

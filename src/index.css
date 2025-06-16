@@ -63,7 +63,7 @@
     mask-repeat: no-repeat
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   .fade-img {
     -webkit-mask-image: 
       linear-gradient(to top, transparent 5%, black 60%);
@@ -75,13 +75,11 @@
   overflow: hidden;
   white-space: nowrap;
   position: relative;
-  max-width: 400px;
 }
 
 .marquee span {
   display: inline-block;
   padding-left: 100%;
-  min-width: 100%;
   animation: marquee 15s linear infinite;
 }
 
@@ -95,4 +93,63 @@ html, body, #root{
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+input[type='range'].progress-bar {
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+input[type='range'].progress-bar::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: #a3a4a7;
+  position: relative;
+  z-index: 1;
+  /* background: linear-gradient(to right, black 0%, black var(--progress), #aeb0b3 var(--progress), #aeb0b3 100%); */
+}
+
+input[type='range'].progress-bar::before {
+  content: '';
+  position: absolute;
+  height: 6px;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: black;
+  border-radius: 9999px;
+  width: var(--progress);
+  pointer-events: none;
+  z-index: 2;
+}
+
+input[type='range'].progress-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 0px;
+  width: 0px;
+  background: transparent;
+  margin-top: 2px;
+}
+
+input[type='range'].progress-bar::-moz-range-track {
+  height: 6px;
+  border-radius: 10px;
+  background: linear-gradient(to right, black 0%, black var(--progress), #aeb0b3 var(--progress), #aeb0b3 100%);
+}
+
+input[type='range'].progress-bar::-moz-range-thumb {
+  height: 0px;
+  width: 0px;
+  border: transparent;
+  border: none;
+}
+
+@layer utilities {
+  @media (max-width: 320px) {
+    .xs {
+      font-size: 12px;
+      max-width: 80px;
+    }
+  }
 }

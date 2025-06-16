@@ -10,12 +10,6 @@ interface Song {
   url: string;
 }
 
-function decodeHTMLEntities(text: string): string {
-  const txt = document.createElement("textarea");
-  txt.innerHTML = text;
-  return txt.value;
-}
-
 const SearchResults = () => {
   const { setCurrentSong } = useSong();
   const location = useLocation();

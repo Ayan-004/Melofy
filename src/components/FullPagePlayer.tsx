@@ -88,7 +88,7 @@ const FullPagePlayer = () => {
         <h1 className="text-sm xl:text-xl 2xl:text-2xl text-center font-montserrat-medium">
           {currentSong.title}
         </h1>
-        <p className="w-3xl text-center text-xs 2xl:text-lg text-wrap font-montserrat-medium text-gray-700">
+        <p className="w-2xs text-center text-xs 2xl:text-lg text-wrap font-montserrat-medium text-gray-700">
           {currentSong.artist}
         </p>
 

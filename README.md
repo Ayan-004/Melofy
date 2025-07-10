@@ -1,4 +1,4 @@
-📀 Melofy
+# 📀 Melofy
 
 Melofy is a modern music player website built with React.js and Tailwind CSS.
 It integrates the iTunes API to let users search for songs and listen to 30-second previews, all within a clean, minimal, and responsive interface.
@@ -40,16 +40,16 @@ API: iTunes Search API
 
 Follow these steps to run Melofy locally:
 
-# Clone the repository
+Clone the repository
 git clone https://github.com/Ayan-004/Melofy.git
 
-# Navigate to the project directory
+Navigate to the project directory
 cd Melofy
 
-# Install dependencies
+Install dependencies
 npm install
 
-# Start the development server
+Start the development server
 npm run dev
 
 The app will be available at http://localhost:3000.

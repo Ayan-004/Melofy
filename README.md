@@ -57,13 +57,6 @@ The app will be available at http://localhost:3000.
 
 ---
 
-📷 Screenshots
-
-<!-- If you add screenshots to your repo, add them like this: --> 
-
-
----
-
 📦 Deployment
 
 This project is deployed on Netlify.

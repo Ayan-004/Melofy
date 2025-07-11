@@ -1,13 +1,11 @@
-import AllRoute from "./routes/AllRoute"
-import BottomPlayer from "./components/BottomPlayer"
+import AllRoute from "./routes/AllRoute";
 
-const App  = () => {
+const App = () => {
   return (
     <>
       <AllRoute />
-      <BottomPlayer />
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;

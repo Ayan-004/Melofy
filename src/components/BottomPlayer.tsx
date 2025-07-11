@@ -1,17 +1,26 @@
 import { useSong } from "./context/SongContext";
+import { useState, useEffect, useRef } from "react";
 import {
-  faBackward,
-  faPlay,
-  faPause,
-  faForward,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+  PlayIcon,
+  PauseIcon,
+  ForwardIcon,
+  BackwardIcon
+} from "@heroicons/react/24/solid";
 
-const BottomPlayer = () => {
+const formatTime = (time: number) => {
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+};
+
+const BottomPlayer = ({
+  onOpenFullPlayer,
+}: {
+  onOpenFullPlayer: () => void;
+}) => {
   const {
     currentSong,
     showFullPlayer,
-    setShowFullPlayer,
     isPlaying,
     setIsPlaying,
     currentTime,
@@ -19,6 +28,38 @@ const BottomPlayer = () => {
     duration,
     audioRef,
   } = useSong();
+
+  const titleRefs = useRef<HTMLDivElement | null>(null);
+  const artistRefs = useRef<HTMLDivElement | null>(null);
+  const [isTitleOverlfowing, setIsTitleOverlflowing] = useState(false);
+  const [isArtistsOverflowing, setIsArtistsOverlfowing] = useState(false);
+
+  // useEffect(() => {
+  //   if (!titleRefs.current || !artistRefs.current) return;
+  //   const newIsTitleOverflowing =
+  //     titleRefs.current.scrollWidth > titleRefs.current.clientWidth;
+
+  //   const newIsArtistsOverflowing =
+  //     artistRefs.current.scrollWidth > artistRefs.current.clientWidth;
+
+  //   setIsTitleOverlflowing(newIsTitleOverflowing);
+  //   setIsArtistsOverlfowing(newIsArtistsOverflowing);
+  // }, [currentSong]);
+
+  useEffect(() => {
+    if (!titleRefs.current || !artistRefs.current) return;
+
+    const checkOverflow = () => {
+      setIsTitleOverlflowing(
+        titleRefs.current!.scrollWidth > titleRefs.current!.clientWidth
+      );
+      setIsArtistsOverlfowing(
+        artistRefs.current!.scrollWidth > artistRefs.current!.clientWidth
+      );
+    };
+
+    requestAnimationFrame(checkOverflow);
+  }, [currentSong]);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -39,17 +80,43 @@ const BottomPlayer = () => {
     }
   };
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
-  };
+  // const formatTime = (time: number) => {
+  //   const minutes = Math.floor(time / 60);
+  //   const seconds = Math.floor(time % 60);
+  //   return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+  // };
 
-  if (!currentSong || !currentSong?.url) return null;
+  useEffect(() => {
+    if (!currentSong || !("mediaSession" in navigator)) return;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: currentSong.title,
+      artist: currentSong.artist,
+      artwork: [
+        {
+          src: currentSong.image,
+          sizes: "512x512",
+          type: "image/jpeg",
+        },
+      ],
+    });
+
+    navigator.mediaSession.setActionHandler("play", () => {
+      audioRef.current?.play();
+      setIsPlaying(true);
+    });
+
+    navigator.mediaSession.setActionHandler("pause", () => {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    });
+  }, [currentSong, audioRef, setIsPlaying]);
+
+  if (!currentSong?.url) return null;
 
   return (
     <div
-      className={`fixed bottom-5 min-w-11/12 xl:mx-52 xl:left-52 xl:min-w-fit mx-4 md:left-0 md:mx-5 right-0 px-6 py-4 backdrop-blur-xl shadow-2xl border border-gray-300/50 rounded-3xl z-40 transition-all duration-500 ease-in-out ${
+      className={`fixed bottom-5 min-w-11/12 xl:mx-52 xl:left-52 xl:min-w-fit mx-4 md:left-0 md:mx-5 right-0 px-6 py-4 backdrop-blur-md xl:backdrop-blur-xl shadow-2xl border border-gray-300/50 rounded-3xl z-40 transition-normal duration-700 ease-in-out ${
         showFullPlayer
           ? "opacity-0 translate-y-5 blur-sm scale-95 pointer-events-none"
           : "opacity-100 translate-y-0 blur-0 scale-100"
@@ -58,51 +125,63 @@ const BottomPlayer = () => {
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div
-            onClick={() => setShowFullPlayer(true)}
-            className="flex items-center gap-4 md:gap-1"
+            onClick={onOpenFullPlayer}
+            className="flex items-center gap-4 md:gap-1 min-w-0"
           >
             {currentSong.image && (
               <img
                 src={currentSong.image}
                 alt={currentSong.title}
+                loading="lazy"
                 className="w-12 h-12 rounded-md object-cover"
               />
             )}
-            <div className="xs w-[130px] md:w-auto mr-2">
-              {/* {Mobile marquee} */}
-              <div className="block md:hidden">
-                <div className="marquee font-montserrat-medium mr-2 text-sm">
+            <div className="flex flex-col min-w-0 max-w-[130px] md:max-w-[250px] overflow-hidden lg:ml-3 hover:cursor-pointer">
+              <div
+                ref={titleRefs}
+                className={`text-sm font-montserrat-medium whitespace-nowrap overflow-hidden ${
+                  isTitleOverlfowing ? "marquee fade-marquee" : "truncate"
+                }`}
+              >
+                {isTitleOverlfowing ? (
                   <span>{currentSong.title}</span>
-                </div>
-                <div className="marquee text-xs font-montserrat-medium mr-2 text-gray-700">
-                  <span>{currentSong.artist}</span>
-                </div>
+                ) : (
+                  currentSong.title
+                )}
               </div>
-            </div>
 
-            {/* {Desktop: Static Text} */}
-            <div className="hidden md:block hover:cursor-pointer">
-              <p className="marquee font-montserrat-medium text-sm">
-                {currentSong.title}
-              </p>
-              <p className="marquee w-96 truncate text-xs font-montserrat-medium text-gray-700">
-                {currentSong.artist}
-              </p>
+              <div
+                ref={artistRefs}
+                className={`text-xs font-montserrat-medium text-gray-500 whitespace-nowrap overflow-hidden ${
+                  isArtistsOverflowing ? "marquee fade-marquee" : "truncate"
+                }`}
+              >
+                {isArtistsOverflowing ? (
+                  <span>{currentSong.artist}</span>
+                ) : (
+                  currentSong.artist
+                )}
+              </div>
+              {/* </div> */}
             </div>
           </div>
 
-          <div className="flex items-center gap-6 md:pr-4">
-            <button className="text-gray-900 hover:text-black cursor-pointer text-xl">
-              <FontAwesomeIcon icon={faBackward} />
+          <div className="flex items-center gap-4 xl:gap-6 md:pr-4">
+            <button aria-label="Previous">
+              <BackwardIcon className="w-6 xl:w-8 text-gray-900 hover:text-black cursor-pointer" />
             </button>
             <button
+            aria-label="Play or Pause"
               onClick={togglePlay}
-              className="w-5 text-gray-900 hover:text-black cursor-pointer text-xl"
             >
-              <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} />
+              {isPlaying ? (
+                <PauseIcon className="w-6 xl:w-8 text-gray-900 hover:text-black cursor-pointer text-xl" />
+              ) : (
+                <PlayIcon className="w-6 xl:w-8 text-gray-900 hover:text-black cursor-pointer text-xl" />
+              )}
             </button>
-            <button className="text-gray-900 hover:text-black cursor-pointer text-xl">
-              <FontAwesomeIcon icon={faForward} />
+            <button aria-label="Next">
+              <ForwardIcon className="w-6 xl:w-8 text-gray-900 hover:text-black cursor-pointer text-xl" />
             </button>
           </div>
         </div>

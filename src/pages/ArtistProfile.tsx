@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useSong } from "../components/context/SongContext";
 import { AnimatedItem } from "../components/AnimateItem";
+import { CirclePlus, ListEnd } from "lucide-react";
 
 interface Song {
   title: string;
@@ -15,15 +16,13 @@ const upgradeImageQuality = (url: string): string => {
 };
 
 function ArtistProfile() {
-  const { setCurrentSong } = useSong();
+  const { setCurrentSong, addToQueue, addSongToPlaylist } = useSong();
   const { artistName } = useParams();
   const location = useLocation();
   const passedImage = location.state?.artistImage;
 
   const [songs, setSongs] = useState<Song[]>([]);
-  const [artistImage] = useState<string>(
-    passedImage ? upgradeImageQuality(passedImage) : ""
-  );
+  const [artistImage] = useState<string>(passedImage || "");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,11 +44,6 @@ function ArtistProfile() {
           )
 
           .map((song: any) => {
-            console.log("Image URL Before:", song.artworkUrl100);
-            console.log(
-              "Image URL After:",
-              upgradeImageQuality(song.artworkUrl100)
-            );
             return {
               title: song.trackName,
               image: upgradeImageQuality(song.artworkUrl100 || ""),
@@ -80,23 +74,26 @@ function ArtistProfile() {
           {artistName}
         </h1>
       </div>
-
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-black"></div>
-          <p className="text-cente font-montserrat-medium text-sm">
-            Loading songs...
+        <div className="flex flex-col items-center justify-center h-60 gap-3">
+          <div className="flex space-x-2">
+            <div className="w-3 h-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div className="w-3 h-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+            <div className="w-3 h-3 bg-black rounded-full animate-bounce"></div>
+          </div>
+          <p className="text-gray-600 font-montserrat-medium ml-3">
+            Loading...
           </p>
         </div>
       ) : songs.length === 0 ? (
-        <p className="flex items-center justify-center md:w-2xl bg-[#efefef] font-montserrat-medium ml-3 mr-3 md:ml-72 p-10 rounded-4xl">
+        <p className="flex items-center justify-center bg-[#efefef] font-montserrat-medium m-3 md:m-6 p-10 rounded-4xl text-center">
           😕 Couldn't find songs by {artistName}. Try again later
         </p>
       ) : (
-        <div className="flex flex-col gap-2 bg-[#efefef] p-10 rounded-4xl m-3 md:m-6 mb-56 md:pb-24">
+        <div className="flex flex-col gap-2 bg-[#efefef] p-6 rounded-4xl m-3 md:m-6 mb-56 md:mb-36">
           {songs.map((song, index) => (
             <AnimatedItem
-              key={index}
+              key={`${song.title}-${index}`}
               index={index}
               onClick={() =>
                 setCurrentSong({
@@ -110,18 +107,36 @@ function ArtistProfile() {
               {song.image?.trim() && (
                 <img
                   src={song.image}
-                  alt={song.title}
+                  alt={`Cover of ${song.title} by ${song.artist}`}
                   className="w-14 h-14 md:w-16 md:h-16 object-cover rounded-full"
                 />
               )}
-              <div>
-                <p className="text-sm md:text-md font-montserrat-medium">
+              <div className="flex flex-col min-w-0 max-w-md overflow-hidden">
+                <p className="text-sm md:text-md font-montserrat-medium truncate">
                   {song.title}
                 </p>
-                <p className="text-xs md:text-sm font-montserrat-medium text-[#979797]">
+                <p className="text-xs md:text-sm font-montserrat-medium truncate text-[#979797]">
                   {song.artist}
                 </p>
               </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToQueue(song);
+                }}
+                className="ml-auto -mr-6 md:-mr-0 text-sm px-3 py-1 text-black hover:scale-110 transition-all cursor-pointer"
+              >
+                <ListEnd />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addSongToPlaylist("My Playlist", song);
+                }}
+                className="-mr-7 md:-mr-0 text-sm px-3 py-1 text-black hover:scale-110 transition-all cursor-pointer"
+              >
+                <CirclePlus />
+              </button>
             </AnimatedItem>
           ))}
         </div>

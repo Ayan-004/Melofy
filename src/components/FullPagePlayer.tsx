@@ -1,22 +1,39 @@
 import { useSong } from "./context/SongContext";
 import {
-  faBackward,
-  faPlay,
-  faPause,
-  faForward,
-  faCircleXmark,
-  faVolumeLow,
-  faVolumeHigh,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+  PlayIcon,
+  PauseIcon,
+  ForwardIcon,
+  BackwardIcon,
+  XCircleIcon,
+  SpeakerWaveIcon,
+  SpeakerXMarkIcon,
+} from "@heroicons/react/24/solid";
 import ElasticSlider from "./ElasticSlider";
-import { useEffect } from "react";
+import { lazy, Suspense } from "react";
+import { useIsMobile } from "../hooks/IsMobile";
+import { motion, AnimatePresence, easeOut, easeInOut } from "framer-motion";
+import {
+  QueueListIcon,
+  PlusCircleIcon,
+  HeartIcon,
+} from "@heroicons/react/24/outline";
+import { useEffect, useRef, useState } from "react";
+const QueuePanel = lazy(() => import("./QueuePanel"));
+import ColorThief from "colorthief";
 
-const FullPagePlayer = () => {
+type FullPagePlayerProps = {
+  showQueue: boolean;
+  setShowQueue: (val: boolean) => void;
+  onClose: () => void;
+};
+
+const FullPagePlayer = ({
+  showQueue,
+  setShowQueue,
+  onClose,
+}: FullPagePlayerProps) => {
   const {
     currentSong,
-    showFullPlayer,
-    setShowFullPlayer,
     isPlaying,
     setIsPlaying,
     currentTime,
@@ -25,7 +42,19 @@ const FullPagePlayer = () => {
     audioRef,
     volume,
     setVolume,
+    addSongToPlaylist,
   } = useSong();
+
+  const isMobile = useIsMobile();
+  const exitY = isMobile ? "100vh" : "100vh";
+
+  const titleRefs = useRef<HTMLDivElement | null>(null);
+  const artistRefs = useRef<HTMLDivElement | null>(null);
+  const [isTitleOverfowing, setIsTitleOverflowing] = useState(false);
+  const [isArtistsOverflowing, setIsArtistsOverfowing] = useState(false);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const [shadowColors, setShadowColors] = useState("rgba(0,0,0,0.9)")
+  
 
   useEffect(() => {
     if (currentSong && audioRef.current) {
@@ -38,6 +67,43 @@ const FullPagePlayer = () => {
       }
     }
   }, [currentSong]);
+
+  useEffect(() => {
+    if (!titleRefs.current || !artistRefs.current) return;
+
+    setIsTitleOverflowing(
+      titleRefs.current.scrollWidth > titleRefs.current.clientWidth
+    );
+    setIsArtistsOverfowing(
+      artistRefs.current.scrollWidth > artistRefs.current.clientWidth
+    );
+  }, [currentSong?.title, currentSong?.artist]);
+
+  useEffect(() => {
+      if (!currentSong || !currentSong.image) return;
+  
+      const img = imgRef.current;
+      if (!img) return;
+
+      const colorThief = new ColorThief();
+
+      function getColor() {
+        try {
+          const result = colorThief.getColor(img!);
+
+          const rgba = `rgba(${result[0]}, ${result[1]}, ${result[2]}, 0.9)`;
+          setShadowColors(rgba);
+        } catch (err) {
+          console.error("Could not get color", err);
+        }
+      }
+
+      if (img.complete) {
+        getColor();
+      } else {
+        img.onload = () => getColor();
+      }
+    }, [currentSong]);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -63,36 +129,82 @@ const FullPagePlayer = () => {
     return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
   };
 
-  if (!showFullPlayer || !currentSong) return null;
+  if (!currentSong) return null;
 
   return (
-    <div
-      className={`fixed top-0 min-w-full xl:min-w-min xl:left-[230px] right-0 bottom-0 xl:rounded-l-4xl backdrop-blur-xl xl:backdrop-blur-2xl text-black z-50 p-6 flex flex-col items-center justify-center overflow-hidden transition-all duration-500 ease-in-out ${
-        showFullPlayer ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
-      }`}
+    <motion.div
+      initial={{ opacity: 0, y: "100vh" }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{
+        y: exitY,
+        opacity: 0,
+        transition: { duration: 0.4, ease: easeInOut },
+      }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      style={{ willChange: "tranform, opacity" }}
+      className={`fixed top-0 min-w-full xl:min-w-min xl:left-[230px] right-0 bottom-0 xl:rounded-l-4xl backdrop-blur-xl xl:backdrop-blur-2xl text-black z-40 p-6 flex flex-col items-center justify-center overflow-hidden transition-all duration-500 ease-in-out`}
     >
-      <button
-        className="absolute top-10 right-10 text-3xl xl:text-4xl hover:cursor-pointer"
-        onClick={() => setShowFullPlayer(false)}
-      >
-        <FontAwesomeIcon icon={faCircleXmark} />
+      <button aria-label="Close player" onClick={onClose}>
+        <XCircleIcon className="absolute top-10 right-10 w-8 h-8 xl:w-12 xl:h-12 hover:cursor-pointer" />
       </button>
 
-      <div className="flex flex-col items-center justify-center mt-9 space-y-3">
+      <AnimatePresence>
+        {showQueue && (
+          <Suspense fallback={<div>Loading...</div>}>
+            <QueuePanel onClose={() => setShowQueue(false)} />
+          </Suspense>
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ scale: 0.8, transition: { duration: 0.1, ease: easeInOut } }}
+        transition={{ delay: 0.15, duration: 0.4, ease: easeOut }}
+        className={`flex flex-col items-center justify-center mt-4 space-y-3 transition-all duration-500 ease-in-out ${
+          showQueue
+            ? "blur-sm scale-95 pointer-events-none"
+            : "blur-0 scale-100"
+        } `}
+      >
         <img
+          ref={imgRef}
           src={currentSong.image}
-          alt={currentSong.title}
+          crossOrigin="anonymous"
+          alt={`Cover art of ${currentSong.title} by ${currentSong.artist}`}
           className="w-70 h-70 sm:w-50 sm:h-50 md:w-60 md:h-60 xl:w-80 xl:h-80 2xl:w-[350px] 2xl:h-[350px] rounded-4xl shadow-2xl "
+          style={{ boxShadow: `0 16px 40px ${shadowColors}` }}
         />
 
-        <h1 className="text-sm xl:text-xl 2xl:text-2xl text-center font-montserrat-medium">
-          {currentSong.title}
-        </h1>
-        <p className="w-2xs text-center text-xs 2xl:text-lg text-wrap font-montserrat-medium text-gray-700">
-          {currentSong.artist}
-        </p>
+        <div className="flex flex-col min-w-0 max-w-[200px] md:max-w-[330px] overflow-hidden hover:cursor-pointer">
+          <div
+            ref={titleRefs}
+            className={`text-xl xl:text-xl 2xl:text-2xl text-center font-montserrat-medium ${
+              isTitleOverfowing ? "marquee fade-marquee" : "truncate"
+            }`}
+          >
+            {isTitleOverfowing ? (
+              <span>{currentSong.title}</span>
+            ) : (
+              currentSong.title
+            )}
+          </div>
 
-        <div className="flex items-center justify-between mt-2">
+          <div
+            ref={artistRefs}
+            className={`text-sm 2xl:text-[16px] mt-1 text-center font-montserrat-medium text-gray-500 ${
+              isArtistsOverflowing ? "marquee fade-marquee" : "truncate"
+            }`}
+          >
+            {isArtistsOverflowing ? (
+              <span>{currentSong.artist}</span>
+            ) : (
+              currentSong.artist
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mt-">
           <p className="w-10 text-sm 2xl:w-16 2xl:text-xl font-montserrat-medium text-gray-700">
             {formatTime(currentTime)}
           </p>
@@ -114,46 +226,76 @@ const FullPagePlayer = () => {
           </p>
         </div>
 
-        <div className="flex mt-3 text-xl xl:text-2xl 2xl:text-4xl">
-          <button className="text-gray-900 hover:text-black hover:scale-110 transition-all duration-500 ease-in-out cursor-pointer">
-            <FontAwesomeIcon icon={faBackward} />
+        <div className="flex mt-3 text-xl xl:text-2xl 2xl:text-3xl">
+          <button aria-label="Previous">
+            <BackwardIcon className="w-8 h-8 hover:scale-110 transition-transform duration-300 ease-in-out cursor-pointer" />
           </button>
           <button
+            aria-label="Play/Pause"
             onClick={togglePlay}
             style={{
               borderRadius: isPlaying ? "19px" : "50%",
               transition: "border-radius 0.3s ease-in-out",
             }}
-            className="w-14 h-14 2xl:w-20 2xl:h-20 mx-10 flex items-center justify-center bg-black text-white hover:cursor-pointer"
+            className="w-14 h-14 2xl:w-16 2xl:h-16 mx-10 flex items-center justify-center bg-black text-white hover:cursor-pointer"
           >
-            <FontAwesomeIcon
-              icon={isPlaying ? faPause : faPlay}
-              size="1x"
-              className="flex items-center justify-center"
-              style={{
-                paddingLeft: isPlaying ? "0px" : "2px",
-              }}
-            />
+            {isPlaying ? (
+              <PauseIcon className="w-7 h-7 xl:w-8 xl:h-8" />
+            ) : (
+              <PlayIcon className="w-7 h-7 xl:w-8 xl:h-8 ml-0.5" />
+            )}
           </button>
-          <button className="text-gray-900 hover:text-black hover:scale-110 transition-all duration-500 ease-in-out cursor-pointer">
-            <FontAwesomeIcon icon={faForward} />
+          <button aria-label="Next">
+            <ForwardIcon className="w-7 h-7 xl:w-8 xl:h-8 hover:text-black hover:scale-110 transition-transform duration-300 ease-in-out cursor-pointer" />
           </button>
         </div>
 
         <ElasticSlider
           value={volume * 100}
-          leftIcon={<FontAwesomeIcon icon={faVolumeLow} />}
-          rightIcon={<FontAwesomeIcon icon={faVolumeHigh} />}
-          // startingValue={0}
-          // defaultValue={volume}
+          leftIcon={<SpeakerXMarkIcon className="w-5 h-5" />}
+          rightIcon={<SpeakerWaveIcon className="w-5 h-5" />}
           maxValue={100}
           isStepped
           stepSize={1}
-          onChange={(val) => setVolume(val / 100)}
-          className="mt-6 2xl:scale-125 2xl:mt-10"
+          onChange={(val) => {
+            setVolume(val / 100);
+
+            if ("vibrate" in navigator) {
+              navigator.vibrate(10);
+            }
+          }}
+          className="mt-6 2xl:scale-125 2xl:mt-7"
         />
-      </div>
-    </div>
+
+        <div className="flex mr-6 xl:mr-8">
+          <button
+            aria-label="Open queue panel"
+            onClick={() => setShowQueue(true)}
+            className="text-black hover:scale-110 transition-transform cursor-pointer ml-6 xl:ml-8"
+          >
+            <QueueListIcon className="w-7 h-7" />
+          </button>
+          <button
+            aria-label="Add song to playlist"
+            onClick={() =>
+              currentSong && addSongToPlaylist("My Playlist", currentSong)
+            }
+            className="text-black hover:scale-110 transition-transform cursor-pointer ml-6 xl:ml-8"
+          >
+            <PlusCircleIcon className="w-7 h-7" />
+          </button>
+          <button
+            aria-label="Add song to favourite"
+            onClick={() =>
+              currentSong && addSongToPlaylist("My Favourite", currentSong)
+            }
+            className="text-black hover:scale-110 transition-transform cursor-pointer ml-6 xl:ml-8"
+          >
+            <HeartIcon className="w-7 h-7" />
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

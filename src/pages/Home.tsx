@@ -81,26 +81,31 @@ useEffect(() => {
 
 return (
     <>
-    <div className="flex flex-col lg:flex-row item-start gap-6 m-6">
+      <div className="flex flex-col lg:flex-row items-start gap-6 m-4 md:gap-14 xl:gap-16 md:m-6 xl:m-10">
         <div className="w-full lg:w-2/3">
-            <Banner />
+          <Banner />
         </div>
 
-        <div className="w-full lg:w-1/3">    
-            <SongPreview />
+        <div className="w-full lg:w-1/3">
+          <SongPreview />
         </div>
-        </div>
+      </div>
 
-        <CardSlider title="Top Artist" items={artists} loading={loading}/>
-        <CardSlider title="Top Global Artist" artists={globalArtist} loading={loadingGlobal}/>
+      <CardSlider title="Top Artist" items={artists} loading={loading} />
+      <CardSlider
+        title="Top Global Artist"
+        artists={globalArtist.map((artist) => ({
+          ...artist,
+          isGlobal: true,
+        }))}
+        loading={loadingGlobal}
+      />
 
-        <div>
-          <Footer/>
-        </div>
-        
+      <div>
+        <Footer />
+      </div>
     </>
   );
+}
 
-};
-
-export default Home
+export default Home;

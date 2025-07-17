@@ -1,77 +1,71 @@
 # 📀 Melofy
 
-Melofy is a modern music player website built with React.js and Tailwind CSS.
-It integrates the iTunes API to let users search for songs and listen to 30-second previews, all within a clean, minimal, and responsive interface.
-
-🌐 Live Demo: melofyy.netlify.app
-
- <!-- Replace with actual screenshot link if you upload one -->
-
+Melofy is a modern music player website built with React.js and Tailwind CSS.It integrates the iTunes API to let users search for songs and listen to 30-second previews, all within a clean, minimal, and responsive interface.
 
 ---
 
-✨ Features
+## 🔗 Live Demo
 
-🎵 Search and play 30-second song previews
-
-🔍 Dynamic search for favorite tracks and artists
-
-🖌️ Modern, minimal, and responsive UI built with Tailwind CSS
-
-⚡ Fast and lightweight single-page app built on React.js
-
-
+🌐 [Live Demo](https://melofyy.netlify.app/home)
 
 ---
 
-🛠 Tech Stack
+## ✨ Features
 
-Frontend: React.js
-
-Styling: Tailwind CSS
-
-API: iTunes Search API
-
-
+- 🎵 Search and play 30-second song previews
+- 🔍 Dynamic search for favorite tracks and artists
+- 🖌️ Modern, minimal, and responsive UI built with Tailwind CSS
+- ⚡ Fast and lightweight single-page app built on React.js
 
 ---
 
-🚀 Getting Started
+## 🛠 Tech Stack
+
+- Frontend: React.js
+- Styling: Tailwind CSS
+- API: iTunes Search API
+
+---
+
+## 🚀 Installation
 
 Follow these steps to run Melofy locally:
 
-Clone the repository
+### 1. Clone the repository
+```bash
 git clone https://github.com/Ayan-004/Melofy.git
+```
 
-Navigate to the project directory
+### 2. Navigate to the project directory
+```bash
 cd Melofy
+```
 
-Install dependencies
+### 3. Install dependencies
+```bash
 npm install
+```
 
-Start the development server
+### 4. Start the development server
+```bash
 npm run dev
+```
 
-The app will be available at http://localhost:3000.
-
+- The app will be available at http://localhost:3000.
 
 ---
 
-📦 Deployment
+## 📦 Deployment
 
 This project is deployed on Netlify.
 You can easily deploy your own fork using Netlify, Vercel, or any static hosting that supports React apps.
 
-
 ---
 
-🙋‍♂️ Author
+## ✍️ Author
 
-Ayan
-
-GitHub: @Ayan004
-
-
+**Ayan Shaikh**  
+🔗 [Portfolio](https://ayancreates.netlify.app/) | [LinkedIn](https://www.linkedin.com/in/ayan-shaikh-3659a0289/) | [GitHub](https://github.com/Ayan-004)
 
 ---
 
@@ -79,13 +73,3 @@ GitHub: @Ayan004
 
 If you like this project, please consider giving it a ⭐️ on GitHub!
 It helps others discover the project and motivates me to keep improving it.
-
-
----
-
-📄 License
-
-This project is open source and available under the MIT License.
-
-
----

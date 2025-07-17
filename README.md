@@ -12,10 +12,14 @@ Melofy is a modern music player website built with React.js and Tailwind CSS.It 
 
 ## ✨ Features
 
-- 🎵 Search and play 30-second song previews
-- 🔍 Dynamic search for favorite tracks and artists
-- 🖌️ Modern, minimal, and responsive UI built with Tailwind CSS
-- ⚡ Fast and lightweight single-page app built on React.js
+- 🎵 Stream 30-Second Song Previews
+- 🔍 Dynamic Search for tracks and artists in real-time
+- 🖌️ Modern, Minimal UI with responsive design using Tailwind CSS
+- ⚡ Fast & Lightweight SPA built with React.js
+- 📂 Playlist Creation and seamless management
+- 📋 Song Queue System with easy reorder & control
+- ❤️ Favorites Support to quickly access liked tracks
+- 🎯 Haptic Feedback integrated for smoother UX (on supported devices)
 
 ---
 
